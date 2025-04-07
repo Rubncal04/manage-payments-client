@@ -8,4 +8,4 @@ export interface IUserRepository {
   delete(id: string): Promise<void>;
   getByPaymentStatus(status: 'pending' | 'paid' | 'overdue'): Promise<User[]>;
   getUsersWithUpcomingPayments(): Promise<User[]>;
-} 
+}

@@ -1,11 +1,11 @@
 import { User } from '../../core/domain/User';
-import { useUsers } from '../hooks/useUsers';
+import { useUsers } from '../../hooks/useUsers';
 import { UserCard } from './UserCard';
 
 export const UserList = () => {
-  const { users, deleteUser } = useUsers();
+  const { users, loading, error, deleteUser } = useUsers();
 
-  if (users.isLoading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
@@ -16,17 +16,17 @@ export const UserList = () => {
     );
   }
 
-  if (users.isError) {
+  if (error) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center text-red-400">
-          Error al cargar usuarios
+          Error al cargar usuarios: {error.message}
         </div>
       </div>
     );
   }
 
-  if (!users.data?.length) {
+  if (!users.length) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center text-gray-400">
@@ -38,7 +38,7 @@ export const UserList = () => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
-      {users.data.map((user: User) => (
+      {users.map((user: User) => (
         <UserCard
           key={user.id}
           user={user}

@@ -11,7 +11,7 @@ export const UserCard = ({ user, onDelete }: UserCardProps) => {
 
   const handleDelete = () => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-      onDelete(user.id);
+      onDelete(user.id!);
     }
   };
 

@@ -40,5 +40,15 @@ export const paymentService = {
       console.error('Error al obtener los pagos:', error);
       throw new Error('Error al cargar el historial de pagos');
     }
+  },
+
+  getAllPayments: async (): Promise<Payment[]> => {
+    try {
+      const response = await api.get('/api/v1/payments');
+      return response.data;
+    } catch (error) {
+      console.error('Error al obtener todos los pagos:', error);
+      throw new Error('Error al cargar el historial global de pagos');
+    }
   }
 };
