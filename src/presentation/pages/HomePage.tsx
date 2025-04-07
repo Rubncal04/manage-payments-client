@@ -6,6 +6,29 @@ import { formatDate } from '../../core/utils/dateUtils';
 export const HomePage = () => {
   const { users, loading, error } = useUsers();
 
+  const getPaymentDate = (dayOfMonth: string) => {
+    const date = new Date();
+    const day = parseInt(dayOfMonth, 10);
+    
+    // Si el día actual es mayor que el día de pago, la próxima fecha de pago es el mes siguiente
+    if (date.getDate() > day) {
+      date.setMonth(date.getMonth() + 1);
+    }
+    
+    date.setDate(day);
+    // Establecer la hora a medianoche para comparaciones consistentes
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
+
+  const formatPaymentDay = (dayOfMonth: string) => {
+    const date = getPaymentDate(dayOfMonth);
+    return date.toLocaleDateString('es-CO', { 
+      day: 'numeric',
+      month: 'long'
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -20,7 +43,7 @@ export const HomePage = () => {
             <p className="text-gray-400">Cargando próximos pagos...</p>
           ) : error ? (
             <p className="text-red-400">Error al cargar próximos pagos: {error.message}</p>
-          ) : users.length === 0 ? (
+          ) : !users.length ? (
             <p className="text-gray-400">No hay usuarios registrados</p>
           ) : (
             <div className="space-y-4">
@@ -34,11 +57,11 @@ export const HomePage = () => {
                     <div>
                       <p className="font-medium text-white">{user.name}</p>
                       <p className="text-sm text-gray-400">
-                        Próximo pago: {formatDate(user.date_to_pay, { month: 'long', day: 'numeric' })}
+                        Próximo pago: {formatPaymentDay(user.date_to_pay)}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-white">${user.last_payment_date ? 'Pagado' : 'Pendiente'}</p>
+                      <p className="font-medium text-white">$8.500 COP</p>
                       <p className="text-sm text-gray-400">{user.cell_phone}</p>
                     </div>
                   </div>

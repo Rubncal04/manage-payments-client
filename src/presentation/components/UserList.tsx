@@ -37,13 +37,14 @@ export const UserList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {users.map((user: User) => (
-        <UserCard
-          key={user.id}
-          user={user}
-          onDelete={(id) => deleteUser.mutate(id)}
-        />
+        <div key={user.id} className="bg-gray-900 p-4 rounded-lg">
+          <UserCard
+            user={user}
+            onDelete={(id) => deleteUser.mutate(id)}
+          />
+        </div>
       ))}
     </div>
   );
