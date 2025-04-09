@@ -16,7 +16,7 @@ export const useUsers = (): UseUsersReturn => {
 
   const usersQuery = useQuery({
     queryKey: ['users'],
-    queryFn: () => userService.getUsers(),
+    queryFn: () => userService.getAllUsers(),
   });
 
   const createUser = useMutation({

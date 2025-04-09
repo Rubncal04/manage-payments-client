@@ -1,43 +1,28 @@
-import { api } from './api';
+import { apiClient } from '../../infrastructure/api/apiClient';
 import { User, CreateUserDTO, UpdateUserDTO } from '../domain/User';
 
 export const userService = {
-  getUsers: async (): Promise<User[]> => {
-    try {
-      const response = await api.get('/api/v1/users');
-      return response.data;
-    } catch (error) {
-      console.error('Error al obtener usuarios:', error);
-      throw new Error('Error al cargar usuarios');
-    }
+  getAllUsers: async (): Promise<User[]> => {
+    const response = await apiClient.get('/users');
+    return response.data;
+  },
+
+  getUserById: async (id: string): Promise<User> => {
+    const response = await apiClient.get(`/users/${id}`);
+    return response.data;
   },
 
   createUser: async (user: CreateUserDTO): Promise<User> => {
-    try {
-      const response = await api.post('/api/v1/users', user);
-      return response.data;
-    } catch (error) {
-      console.error('Error al crear usuario:', error);
-      throw new Error('Error al crear usuario');
-    }
+    const response = await apiClient.post('/users', user);
+    return response.data;
   },
 
-  updateUser: async (userId: string, user: UpdateUserDTO): Promise<User> => {
-    try {
-      const response = await api.patch(`/api/v1/users/${userId}`, user);
-      return response.data;
-    } catch (error) {
-      console.error('Error al actualizar usuario:', error);
-      throw new Error('Error al actualizar usuario');
-    }
+  updateUser: async (id: string, user: UpdateUserDTO): Promise<User> => {
+    const response = await apiClient.put(`/users/${id}`, user);
+    return response.data;
   },
 
-  deleteUser: async (userId: string): Promise<void> => {
-    try {
-      await api.delete(`/api/v1/users/${userId}`);
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-      throw new Error('Error al eliminar usuario');
-    }
+  deleteUser: async (id: string): Promise<void> => {
+    await apiClient.delete(`/users/${id}`);
   }
-}; 
+};
