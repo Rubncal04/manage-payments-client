@@ -25,10 +25,7 @@ export const LoginForm = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Intentando login con:', { email: data.email }); // Debug log
-      
       const response = await authService.login(data);
-      console.log('Respuesta de login:', response); // Debug log
       
       // Guardar tokens
       localStorage.setItem('token', response.access_token);
@@ -36,7 +33,6 @@ export const LoginForm = () => {
       
       // Verificar que se guardaron correctamente
       const savedToken = localStorage.getItem('token');
-      console.log('Token guardado:', savedToken); // Debug log
       
       if (!savedToken) {
         throw new Error('No se pudo guardar el token');

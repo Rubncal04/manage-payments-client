@@ -1,5 +1,21 @@
 import { apiClient } from '../../infrastructure/api/apiClient';
-import { Payment, PaymentStatus, CreatePaymentDTO, UpdatePaymentDTO } from '../domain/Payment';
+
+export interface Payment {
+  id: string;
+  client_id: string;
+  amount: number;
+  payment_date: string;
+  status: PaymentStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PaymentStatus = 'processing' | 'completed' | 'failed';
+
+export interface CreatePaymentDTO {
+  client_id: string;
+  amount: number;
+}
 
 export const paymentService = {
   getAllPayments: async (): Promise<Payment[]> => {
@@ -24,7 +40,9 @@ export const paymentService = {
 
   createPayment: async (paymentData: CreatePaymentDTO): Promise<Payment> => {
     try {
-      const response = await apiClient.post('/payments', paymentData);
+      const response = await apiClient.post(`/clients/${paymentData.client_id}/payments`, {
+        amount: paymentData.amount
+      });
       return response.data;
     } catch (error) {
       console.error('Error creating payment:', error);
@@ -32,28 +50,9 @@ export const paymentService = {
     }
   },
 
-  updatePayment: async (id: string, payment: UpdatePaymentDTO): Promise<Payment> => {
+  getPaymentStatus: async (clientId: string, paymentId: string): Promise<Payment> => {
     try {
-      const response = await apiClient.put(`/payments/${id}`, payment);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating payment:', error);
-      throw error;
-    }
-  },
-
-  deletePayment: async (id: string): Promise<void> => {
-    try {
-      await apiClient.delete(`/payments/${id}`);
-    } catch (error) {
-      console.error('Error deleting payment:', error);
-      throw error;
-    }
-  },
-
-  getPaymentStatus: async (id: string): Promise<PaymentStatus> => {
-    try {
-      const response = await apiClient.get(`/payments/${id}/status`);
+      const response = await apiClient.get(`/clients/${clientId}/payments/${paymentId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching payment status:', error);

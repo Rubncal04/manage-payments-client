@@ -29,21 +29,12 @@ if (token) {
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-
     if (token) {
-      // Asegurarnos de que config.headers exista
-      config.headers = config.headers || {};
-
-      // Establecer el header de autorización
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.log('No se encontró token'); // Debug log
     }
-
     return config;
   },
   (error) => {
-    console.error('Error en interceptor de request:', error);
     return Promise.reject(error);
   }
 );

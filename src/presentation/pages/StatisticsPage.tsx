@@ -50,7 +50,7 @@ export const StatisticsPage = () => {
           totalPayments,
           averageAmount,
           clients,
-          payments
+          payments: payments as Payment[]
         });
       } catch (error) {
         console.error('Error al cargar estadísticas:', error);
