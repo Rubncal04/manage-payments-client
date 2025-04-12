@@ -10,31 +10,32 @@ import { StatisticsExport } from '../components/statistics/StatisticsExport';
 export const StatisticsPage = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('month');
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const [clientsResponse, paymentsResponse] = await Promise.all([
-          clientService.getAllClients(),
-          paymentService.getAllPayments()
-        ]);
-        setClients(clientsResponse);
-        setPayments(paymentsResponse);
-      } catch (err) {
-        setError('Error al cargar los datos');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      setError(null);
+      const [clientsData, paymentsData] = await Promise.all([
+        clientService.getAllClients(),
+        paymentService.getAllPayments()
+      ]);
+      
+      // Si la respuesta es null, inicializamos con un array vacío
+      setClients(clientsData || []);
+      setPayments(paymentsData || []);
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error);
+      setError('Error al cargar las estadísticas');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const calculateStatistics = () => {
     const activeClients = clients.filter(client => client.status === 'active').length;
@@ -51,17 +52,6 @@ export const StatisticsPage = () => {
     };
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-400">Cargando estadísticas...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -75,48 +65,54 @@ export const StatisticsPage = () => {
   const stats = calculateStatistics();
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-white">Estadísticas</h1>
-        <div className="flex items-center gap-4">
-          <select
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value as 'week' | 'month' | 'year')}
-            className="bg-gray-700 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-40"
-          >
-            <option value="week">Última semana</option>
-            <option value="month">Último mes</option>
-            <option value="year">Último año</option>
-          </select>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-4 bg-red-900/50 border border-red-500 rounded-lg">
+          <p className="text-red-400">{error}</p>
+        </div>
+      )}
+
+      {isLoading ? (
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Cargando estadísticas...</p>
+          </div>
+        </div>
+      ) : clients.length > 0 || payments.length > 0 ? (
+        <div className="grid gap-6">
+          <StatisticsCharts clients={clients} payments={payments} period={selectedPeriod} />
+          <StatisticsAlerts clients={clients} payments={payments} />
           <StatisticsExport clients={clients} payments={payments} />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-sm font-medium text-gray-400 mb-2">Total Clientes</h3>
-          <p className="text-2xl font-bold text-white">{stats.totalClients}</p>
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-[400px] bg-gray-800/50 rounded-lg p-8">
+          <div className="text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+            <h3 className="mt-2 text-lg font-medium text-gray-300">No hay datos disponibles</h3>
+            <p className="mt-1 text-sm text-gray-400">
+              Aún no hay clientes o pagos registrados en el sistema.
+            </p>
+          </div>
         </div>
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-sm font-medium text-gray-400 mb-2">Clientes Activos</h3>
-          <p className="text-2xl font-bold text-green-400">{stats.activeClients}</p>
-        </div>
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-sm font-medium text-gray-400 mb-2">Total Pagos</h3>
-          <p className="text-2xl font-bold text-blue-400">{stats.totalPayments}</p>
-        </div>
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-sm font-medium text-gray-400 mb-2">Ingresos Totales</h3>
-          <p className="text-2xl font-bold text-purple-400">
-            ${stats.totalRevenue.toLocaleString('es-CO')} COP
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <StatisticsCharts clients={clients} payments={payments} period={selectedPeriod} />
-        <StatisticsAlerts clients={clients} payments={payments} />
-      </div>
+      )}
     </div>
   );
 }; 

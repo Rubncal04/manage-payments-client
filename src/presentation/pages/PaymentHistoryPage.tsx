@@ -20,7 +20,7 @@ export const PaymentHistoryPage = () => {
     try {
       setError(null);
       const allPayments = await paymentService.getAllPayments();
-      setPayments(allPayments);
+      setPayments(allPayments || []);
     } catch (error) {
       console.error('Error al cargar el historial de pagos:', error);
       setError('Error al cargar el historial de pagos');
@@ -87,8 +87,11 @@ export const PaymentHistoryPage = () => {
       )}
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Cargando historial de pagos...</p>
+          </div>
         </div>
       ) : filteredPayments.length > 0 ? (
         <div className="grid gap-4">
@@ -114,8 +117,27 @@ export const PaymentHistoryPage = () => {
           ))}
         </div>
       ) : (
-        <div className="text-center py-8">
-          <p className="text-gray-400">No hay pagos registrados</p>
+        <div className="flex flex-col items-center justify-center min-h-[400px] bg-gray-800/50 rounded-lg p-8">
+          <div className="text-center">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <h3 className="mt-2 text-lg font-medium text-gray-300">No hay pagos registrados</h3>
+            <p className="mt-1 text-sm text-gray-400">
+              Aún no se han registrado pagos en el sistema.
+            </p>
+          </div>
         </div>
       )}
     </div>
