@@ -10,6 +10,7 @@ import { Navbar } from './presentation/components/Navbar';
 import { ProtectedRoute } from './presentation/components/auth/ProtectedRoute';
 import { ClientDetailsPage } from './presentation/pages/ClientDetailsPage';
 import { EditClientPage } from './presentation/pages/EditClientPage';
+import { CreateClientPage } from './presentation/pages/CreateClientPage';
 
 const queryClient = new QueryClient();
 
@@ -35,10 +36,12 @@ function App() {
                 </main>
               </div>
             }>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<HomePage />} />
+              <Route path="/clients/new" element={<CreateClientPage />} />
               <Route path="/clients/:id" element={<ClientDetailsPage />} />
               <Route path="/clients/:id/edit" element={<EditClientPage />} />
-              <Route path="/users/payment/:id" element={<PaymentPage />} />
+              <Route path="/payments/new" element={<PaymentPage />} />
               <Route path="/payments/history" element={<PaymentHistoryPage />} />
               <Route path="/statistics" element={<StatisticsPage />} />
             </Route>
