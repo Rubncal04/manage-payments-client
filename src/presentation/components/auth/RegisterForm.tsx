@@ -15,14 +15,7 @@ const schema = yup.object({
     .matches(/[a-z]/, 'La contraseña debe contener al menos una letra minúscula')
     .matches(/[A-Z]/, 'La contraseña debe contener al menos una letra mayúscula')
     .required('La contraseña es requerida'),
-  name: yup.string().required('El nombre es requerido'),
-  cell_phone: yup.string()
-    .matches(/^[0-9]+$/, 'El teléfono solo debe contener números')
-    .min(10, 'El teléfono debe tener al menos 10 dígitos')
-    .required('El teléfono es requerido'),
-  date_to_pay: yup.string()
-    .matches(/^(0?[1-9]|[12][0-9]|3[01])$/, 'Ingresa un día válido (1-31)')
-    .required('El día de pago es requerido'),
+  name: yup.string().required('El nombre es requerido')
 }).required();
 
 export const RegisterForm = () => {
@@ -135,42 +128,6 @@ export const RegisterForm = () => {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="cell_phone" className="block text-sm font-medium text-gray-200">
-                Teléfono celular
-              </label>
-              <div className="mt-1">
-                <input
-                  {...register('cell_phone')}
-                  type="tel"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="3001234567"
-                />
-                {errors.cell_phone && (
-                  <p className="mt-1 text-sm text-red-400">{errors.cell_phone.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="date_to_pay" className="block text-sm font-medium text-gray-200">
-                Día de pago (1-31)
-              </label>
-              <div className="mt-1">
-                <input
-                  {...register('date_to_pay')}
-                  type="number"
-                  min="1"
-                  max="31"
-                  className="appearance-none block w-full px-3 py-2 border border-gray-700 rounded-md shadow-sm bg-gray-800/50 text-white placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="15"
-                />
-                {errors.date_to_pay && (
-                  <p className="mt-1 text-sm text-red-400">{errors.date_to_pay.message}</p>
-                )}
-              </div>
-            </div>
-
             {error && (
               <div className="rounded-md bg-red-500/10 p-4">
                 <p className="text-sm text-red-400">{error}</p>
@@ -191,4 +148,4 @@ export const RegisterForm = () => {
       </div>
     </div>
   );
-}; 
+};

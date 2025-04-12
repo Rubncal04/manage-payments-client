@@ -9,6 +9,7 @@ import { RegisterPage } from './presentation/pages/RegisterPage';
 import { Navbar } from './presentation/components/Navbar';
 import { ProtectedRoute } from './presentation/components/auth/ProtectedRoute';
 import { ClientDetailsPage } from './presentation/pages/ClientDetailsPage';
+import { EditClientPage } from './presentation/pages/EditClientPage';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ function App() {
             }>
               <Route path="/dashboard" element={<HomePage />} />
               <Route path="/clients/:id" element={<ClientDetailsPage />} />
+              <Route path="/clients/:id/edit" element={<EditClientPage />} />
               <Route path="/users/payment/:id" element={<PaymentPage />} />
               <Route path="/payments/history" element={<PaymentHistoryPage />} />
               <Route path="/statistics" element={<StatisticsPage />} />
