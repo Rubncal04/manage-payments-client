@@ -13,13 +13,18 @@ export const paymentService = {
   },
 
   getPaymentsByClient: async (clientId: string): Promise<Payment[]> => {
-    const response = await apiClient.get(`/clients/${clientId}/payments`);
-    return response.data;
+    try {
+      const response = await apiClient.get(`/clients/${clientId}/payments`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching client payments:', error);
+      throw error;
+    }
   },
 
-  createPayment: async (payment: CreatePaymentDTO): Promise<Payment> => {
+  createPayment: async (paymentData: CreatePaymentDTO): Promise<Payment> => {
     try {
-      const response = await apiClient.post('/payments', payment);
+      const response = await apiClient.post('/payments', paymentData);
       return response.data;
     } catch (error) {
       console.error('Error creating payment:', error);

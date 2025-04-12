@@ -29,23 +29,17 @@ if (token) {
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    console.log('Token en interceptor:', token); // Debug log
-    
+
     if (token) {
       // Asegurarnos de que config.headers exista
       config.headers = config.headers || {};
-      
+
       // Establecer el header de autorización
       config.headers.Authorization = `Bearer ${token}`;
-      
-      console.log('Headers configurados:', {
-        Authorization: config.headers.Authorization,
-        'Content-Type': config.headers['Content-Type']
-      }); // Debug log
     } else {
       console.log('No se encontró token'); // Debug log
     }
-    
+
     return config;
   },
   (error) => {
@@ -98,15 +92,15 @@ apiClient.interceptors.response.use(
 
         const response = await authService.refreshToken(refreshToken);
         const { access_token } = response;
-        
+
         localStorage.setItem('token', access_token);
 
         // Actualizar los headers por defecto
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        
+
         // Actualizar los headers de la petición original
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
-        
+
         processQueue(null, access_token);
         return apiClient(originalRequest);
       } catch (refreshError) {
