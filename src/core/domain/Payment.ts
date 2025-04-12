@@ -1,24 +1,21 @@
 export interface Payment {
   id: string;
+  client_id: string;
   amount: number;
   payment_date: string;
-  user_id: string;
-  status: 'pending' | 'processing' | 'success' | 'failed';
+  status: PaymentStatus;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface PaymentStatus {
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  message: string;
-}
+export type PaymentStatus = 'processing' | 'completed' | 'rejected';
 
 export interface CreatePaymentDTO {
   amount: number;
-  payment_date: string;
-  user_id: string;
 }
 
 export interface UpdatePaymentDTO {
-  amount?: number;
-  payment_date?: string;
-  status?: 'pending' | 'processing' | 'success' | 'failed';
+  status?: PaymentStatus;
+  error?: string;
 } 

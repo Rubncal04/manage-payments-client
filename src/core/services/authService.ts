@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { RegisterDTO, LoginDTO, AuthResponse, RefreshTokenDTO } from '../domain/Auth';
+import { RegisterDTO, LoginDTO, AuthResponse } from '../domain/Auth';
 import { baseClient } from '../../infrastructure/api/apiClient';
 
 const handleAuthError = (error: any): never => {
@@ -13,41 +13,50 @@ const handleAuthError = (error: any): never => {
 };
 
 export const authService = {
-  register: async (data: RegisterDTO): Promise<AuthResponse> => {
+  register: async (userData: RegisterDTO): Promise<AuthResponse> => {
     try {
-      const response = await baseClient.post('/register', data);
+      const response = await baseClient.post<AuthResponse>('/register', userData);
+      const { access_token, refresh_token } = response.data;
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
       return response.data;
     } catch (error) {
-      console.error('Error en el registro:', error);
       return handleAuthError(error);
     }
   },
 
-  login: async (data: LoginDTO): Promise<AuthResponse> => {
+  login: async (credentials: LoginDTO): Promise<AuthResponse> => {
     try {
-      console.log('Intentando login en:', baseClient.defaults.baseURL); // Debug log
-      const response = await baseClient.post('/login', data);
-      console.log('Respuesta del servidor:', response.data); // Debug log
+      const response = await baseClient.post<AuthResponse>('/login', credentials);
+      const { access_token, refresh_token } = response.data;
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('refresh_token', refresh_token);
       return response.data;
     } catch (error) {
-      console.error('Error en el login:', error);
       return handleAuthError(error);
     }
   },
 
-  refreshToken: async (data: RefreshTokenDTO): Promise<AuthResponse> => {
+  refreshToken: async (refreshToken: string): Promise<{ access_token: string }> => {
     try {
-      const response = await baseClient.post('/refresh', data);
+      const response = await baseClient.post<{ access_token: string }>('/refresh', { refresh_token: refreshToken });
+      localStorage.setItem('token', response.data.access_token);
       return response.data;
     } catch (error) {
-      console.error('Error al refrescar el token:', error);
       return handleAuthError(error);
     }
   },
 
-  logout: () => {
+  logout: (): void => {
     localStorage.removeItem('token');
     localStorage.removeItem('refresh_token');
-    window.location.href = '/auth/login';
+  },
+
+  getToken: (): string | null => {
+    return localStorage.getItem('token');
+  },
+
+  getRefreshToken: (): string | null => {
+    return localStorage.getItem('refresh_token');
   }
 }; 

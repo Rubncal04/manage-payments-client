@@ -1,5 +1,5 @@
 import { apiClient } from '../../infrastructure/api/apiClient';
-import { User } from '../domain/User';
+import { User } from '../domain/Auth';
 import { Payment } from '../domain/Payment';
 
 export const api = {

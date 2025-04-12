@@ -1,13 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export const Navbar = () => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
-    navigate('/auth/login');
-  };
+  const { logout } = useAuth();
 
   return (
     <nav className="bg-gray-800">
@@ -26,12 +21,6 @@ export const Navbar = () => {
                   Inicio
                 </Link>
                 <Link
-                  to="/users/new"
-                  className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Nuevo Usuario
-                </Link>
-                <Link
                   to="/payments/history"
                   className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
@@ -48,7 +37,7 @@ export const Navbar = () => {
           </div>
           <div>
             <button
-              onClick={handleLogout}
+              onClick={logout}
               className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
             >
               Cerrar Sesión

@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { HomePage } from './presentation/pages/HomePage';
-import { NewUserPage } from './presentation/pages/NewUserPage';
 import { PaymentPage } from './presentation/pages/PaymentPage';
 import { PaymentHistoryPage } from './presentation/pages/PaymentHistoryPage';
 import { StatisticsPage } from './presentation/pages/StatisticsPage';
@@ -9,6 +8,7 @@ import { LoginPage } from './presentation/pages/LoginPage';
 import { RegisterPage } from './presentation/pages/RegisterPage';
 import { Navbar } from './presentation/components/Navbar';
 import { ProtectedRoute } from './presentation/components/auth/ProtectedRoute';
+import { ClientDetailsPage } from './presentation/pages/ClientDetailsPage';
 
 const queryClient = new QueryClient();
 
@@ -35,7 +35,7 @@ function App() {
               </div>
             }>
               <Route path="/dashboard" element={<HomePage />} />
-              <Route path="/users/new" element={<NewUserPage />} />
+              <Route path="/clients/:id" element={<ClientDetailsPage />} />
               <Route path="/users/payment/:id" element={<PaymentPage />} />
               <Route path="/payments/history" element={<PaymentHistoryPage />} />
               <Route path="/statistics" element={<StatisticsPage />} />

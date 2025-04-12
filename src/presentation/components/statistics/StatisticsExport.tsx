@@ -1,15 +1,8 @@
 import { useState } from 'react';
-import { User } from '../../../core/domain/User';
-import { Payment } from '../../../core/services/paymentService';
+import { Client } from '../../../core/domain/Client';
+import { Payment } from '../../../core/domain/Payment';
 import { Document, Page, Text, View, StyleSheet, PDFViewer } from '@react-pdf/renderer';
 import * as XLSX from 'xlsx';
-import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { formatDate } from '../../../core/utils/dateUtils';
-
-interface StatisticsExportProps {
-  users: User[];
-  payments: Payment[];
-}
 
 const styles = StyleSheet.create({
   page: {
@@ -34,105 +27,140 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: '#4B5563',
   },
+  tableContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginVertical: 10,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingVertical: 5,
+    width: '100%',
+  },
+  tableHeader: {
+    backgroundColor: '#F3F4F6',
+  },
+  tableCell: {
+    flex: 1,
+    padding: 5,
+    fontSize: 10,
+    textAlign: 'center',
+  },
+  viewer: {
+    width: '100%',
+    height: '600px',
+    marginBottom: '20px',
+  },
 });
 
-const StatisticsPDF = ({ users, payments }: StatisticsExportProps) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <Text style={styles.title}>Reporte de Estadísticas</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumen de Usuarios</Text>
-        <Text style={styles.text}>Total de usuarios: {users.length}</Text>
-        <Text style={styles.text}>Usuarios activos: {users.filter(u => u.paid).length}</Text>
-        <Text style={styles.text}>Usuarios inactivos: {users.filter(u => !u.paid).length}</Text>
-      </View>
+interface StatisticsExportProps {
+  clients: Client[];
+  payments: Payment[];
+}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Resumen de Pagos</Text>
-        <Text style={styles.text}>Total de pagos: {payments.length}</Text>
-        <Text style={styles.text}>
-          Ingresos totales: ${payments.reduce((sum, p) => sum + p.amount, 0).toLocaleString('es-CO')} COP
-        </Text>
-      </View>
-    </Page>
-  </Document>
-);
+const StatisticsPDF = ({ clients, payments }: StatisticsExportProps) => {
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.title}>Reporte de Estadísticas</Text>
+        
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Resumen de Clientes</Text>
+          <View style={styles.tableContainer}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={styles.tableCell}>Total Clientes</Text>
+              <Text style={styles.tableCell}>Clientes Activos</Text>
+              <Text style={styles.tableCell}>Clientes Inactivos</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>{clients.length}</Text>
+              <Text style={styles.tableCell}>
+                {clients.filter(c => c.status === 'active').length}
+              </Text>
+              <Text style={styles.tableCell}>
+                {clients.filter(c => c.status === 'inactive').length}
+              </Text>
+            </View>
+          </View>
+        </View>
 
-export const StatisticsExport = ({ users, payments }: StatisticsExportProps) => {
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Resumen de Pagos</Text>
+          <View style={styles.tableContainer}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={styles.tableCell}>Total Pagos</Text>
+              <Text style={styles.tableCell}>Ingresos Totales</Text>
+              <Text style={styles.tableCell}>Promedio por Pago</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>{payments.length}</Text>
+              <Text style={styles.tableCell}>
+                ${payments.reduce((sum, p) => sum + p.amount, 0).toLocaleString('es-CO')} COP
+              </Text>
+              <Text style={styles.tableCell}>
+                ${(payments.reduce((sum, p) => sum + p.amount, 0) / (payments.length || 1)).toLocaleString('es-CO')} COP
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+};
+
+export const StatisticsExport: React.FC<StatisticsExportProps> = ({ clients, payments }) => {
   const [showPDF, setShowPDF] = useState(false);
 
   const exportToExcel = () => {
-    // Crear hoja de usuarios
-    const usersSheet = XLSX.utils.json_to_sheet(
-      users.map(user => ({
-        Nombre: user.name,
-        Teléfono: user.cell_phone,
-        'Día de Pago': user.date_to_pay,
-        Estado: user.paid ? 'Activo' : 'Inactivo',
-        'Último Pago': user.last_payment_date ? formatDate(user.last_payment_date) : 'Sin pagos'
+    const clientsSheet = XLSX.utils.json_to_sheet(
+      clients.map(client => ({
+        Nombre: client.name,
+        Teléfono: client.cell_phone,
+        'Día de Pago': client.day_to_pay,
+        Estado: client.status === 'active' ? 'Activo' : 'Inactivo',
+        'Último Pago': client.last_payment_date || 'Nunca'
       }))
     );
 
-    // Crear hoja de pagos
     const paymentsSheet = XLSX.utils.json_to_sheet(
       payments.map(payment => ({
-        Fecha: formatDate(payment.payment_date),
+        Cliente: clients.find(c => c.id === payment.client_id)?.name || 'Desconocido',
         Monto: payment.amount,
-        Usuario: users.find(u => u.id === payment.user_id)?.name,
+        Fecha: payment.payment_date,
         Estado: payment.status
       }))
     );
 
-    // Crear libro
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, usersSheet, 'Usuarios');
+    XLSX.utils.book_append_sheet(wb, clientsSheet, 'Clientes');
     XLSX.utils.book_append_sheet(wb, paymentsSheet, 'Pagos');
 
-    // Guardar archivo
     XLSX.writeFile(wb, 'estadisticas.xlsx');
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 shadow-lg mt-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Exportar Datos</h3>
-        <ArrowDownTrayIcon className="h-6 w-6 text-gray-400" />
-      </div>
-
-      <div className="flex space-x-4">
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-2">
         <button
           onClick={exportToExcel}
-          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+          className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-200"
         >
           Exportar a Excel
         </button>
         <button
-          onClick={() => setShowPDF(true)}
-          className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+          onClick={() => setShowPDF(!showPDF)}
+          className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors duration-200"
         >
-          Exportar a PDF
+          {showPDF ? 'Ocultar PDF' : 'Ver PDF'}
         </button>
       </div>
-
       {showPDF && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-4 max-w-4xl w-full max-h-[90vh] overflow-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Vista Previa del PDF</h3>
-              <button
-                onClick={() => setShowPDF(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Cerrar
-              </button>
-            </div>
-            <PDFViewer width="100%" height={500}>
-              <StatisticsPDF users={users} payments={payments} />
-            </PDFViewer>
-          </div>
-        </div>
+        <PDFViewer style={styles.viewer}>
+          <StatisticsPDF clients={clients} payments={payments} />
+        </PDFViewer>
       )}
     </div>
   );
-}; 
+};

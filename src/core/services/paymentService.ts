@@ -3,26 +3,56 @@ import { Payment, PaymentStatus, CreatePaymentDTO, UpdatePaymentDTO } from '../d
 
 export const paymentService = {
   getAllPayments: async (): Promise<Payment[]> => {
-    const response = await apiClient.get('/payments');
+    try {
+      const response = await apiClient.get('/payments');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      throw error;
+    }
+  },
+
+  getPaymentsByClient: async (clientId: string): Promise<Payment[]> => {
+    const response = await apiClient.get(`/clients/${clientId}/payments`);
     return response.data;
   },
-  getPaymentById: async (id: string): Promise<Payment> => {
-    const response = await apiClient.get(`/payments/${id}`);
-    return response.data;
-  },
+
   createPayment: async (payment: CreatePaymentDTO): Promise<Payment> => {
-    const response = await apiClient.post('/payments', payment);
-    return response.data;
+    try {
+      const response = await apiClient.post('/payments', payment);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating payment:', error);
+      throw error;
+    }
   },
+
   updatePayment: async (id: string, payment: UpdatePaymentDTO): Promise<Payment> => {
-    const response = await apiClient.put(`/payments/${id}`, payment);
-    return response.data;
+    try {
+      const response = await apiClient.put(`/payments/${id}`, payment);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      throw error;
+    }
   },
+
   deletePayment: async (id: string): Promise<void> => {
-    await apiClient.delete(`/payments/${id}`);
+    try {
+      await apiClient.delete(`/payments/${id}`);
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      throw error;
+    }
   },
+
   getPaymentStatus: async (id: string): Promise<PaymentStatus> => {
-    const response = await apiClient.get(`/payments/${id}/status`);
-    return response.data;
+    try {
+      const response = await apiClient.get(`/payments/${id}/status`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching payment status:', error);
+      throw error;
+    }
   }
 };

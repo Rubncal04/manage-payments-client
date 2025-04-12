@@ -96,11 +96,10 @@ apiClient.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-        const response = await authService.refreshToken({ refresh_token: refreshToken });
-        const { access_token, refresh_token } = response;
+        const response = await authService.refreshToken(refreshToken);
+        const { access_token } = response;
         
         localStorage.setItem('token', access_token);
-        localStorage.setItem('refresh_token', refresh_token);
 
         // Actualizar los headers por defecto
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
